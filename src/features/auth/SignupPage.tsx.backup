@@ -1,0 +1,185 @@
+import { useState } from 'react';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { Heart, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/hooks/useAuth';
+import { validateEmail, validatePassword } from '@/lib/utils';
+import { APP_NAME, DEV_MODE } from '@/lib/constants';
+import { DEV_AUTH_NOTICE } from '@/lib/mockData';
+
+export function SignupPage() {
+  const navigate = useNavigate();
+  const { signup, isAuthenticated } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  if (isAuthenticated) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: Record<string, string> = {};
+
+    // Validate email
+    if (!validateEmail(email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      newErrors.password = passwordValidation.errors[0];
+    }
+
+    // Validate password match
+    if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setIsLoading(true);
+
+    try {
+      await signup({ email, password, confirmPassword });
+      navigate('/onboarding');
+    } catch (err) {
+      setErrors({
+        form: err instanceof Error ? err.message : 'Signup failed',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col">
+      <header className="px-4 py-6">
+        <Link to="/" className="flex items-center gap-2 w-fit">
+          <Heart className="h-8 w-8 text-accent-600" />
+          <span className="text-2xl font-bold text-gray-900">{APP_NAME}</span>
+        </Link>
+      </header>
+
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          {DEV_MODE && (
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-yellow-900">{DEV_AUTH_NOTICE}</p>
+                <p className="text-sm text-yellow-700 mt-1">
+                  Password validation is active for demonstration
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h1>
+            <p className="text-gray-600 mb-8">Start your journey to meaningful connections</p>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <Input
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                error={errors.email}
+                required
+                autoComplete="email"
+              />
+
+              <div className="relative">
+                <Input
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Create a strong password"
+                  error={errors.password}
+                  helperText="At least 8 characters with uppercase, lowercase, and number"
+                  required
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+
+              <div className="relative">
+                <Input
+                  label="Confirm Password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm your password"
+                  error={errors.confirmPassword}
+                  required
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+
+              {errors.form && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800">{errors.form}</p>
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                fullWidth
+                size="lg"
+                isLoading={isLoading}
+              >
+                Create Account
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-gray-600">
+                Already have an account?{' '}
+                <Link to="/login" className="text-accent-600 hover:text-accent-700 font-medium">
+                  Log in
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

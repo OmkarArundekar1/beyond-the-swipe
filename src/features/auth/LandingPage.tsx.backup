@@ -1,0 +1,181 @@
+import { Link, Navigate } from 'react-router-dom';
+import { Heart, Target, Shield, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/hooks/useAuth';
+import { APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
+
+export function LandingPage() {
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to="/discover" replace />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Hero Section */}
+      <header className="px-4 py-6 sm:px-6 lg:px-8">
+        <nav className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Heart className="h-8 w-8 text-accent-600" />
+            <span className="text-2xl font-bold text-gray-900">{APP_NAME}</span>
+          </div>
+          <div className="flex gap-3">
+            <Link to="/login">
+              <Button variant="ghost">Log In</Button>
+            </Link>
+            <Link to="/signup">
+              <Button variant="primary">Sign Up</Button>
+            </Link>
+          </div>
+        </nav>
+      </header>
+
+      <main>
+        {/* Hero */}
+        <section className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className="text-center">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6">
+              Dating that goes
+              <span className="block text-accent-600">beyond the swipe</span>
+            </h1>
+            <p className="text-xl sm:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
+              {APP_DESCRIPTION}. Find meaningful connections based on what truly matters.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/signup">
+                <Button size="lg" className="text-lg px-8">
+                  Get Started
+                </Button>
+              </Link>
+              <Button size="lg" variant="outline" className="text-lg px-8">
+                Learn More
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <FeatureCard
+              icon={Target}
+              title="Compatibility First"
+              description="Our algorithm focuses on deep compatibility across values, lifestyle, and goals."
+            />
+            <FeatureCard
+              icon={Sparkles}
+              title="Meaningful Matches"
+              description="Connect with people who align with what you're truly looking for."
+            />
+            <FeatureCard
+              icon={Shield}
+              title="Safe & Respectful"
+              description="Built with safety and respect at the core of every interaction."
+            />
+            <FeatureCard
+              icon={Heart}
+              title="Real Connections"
+              description="Move past surface-level and find relationships that matter."
+            />
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section className="bg-white py-16 sm:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
+              How It Works
+            </h2>
+            <div className="grid md:grid-cols-3 gap-12">
+              <Step
+                number="1"
+                title="Share Your Values"
+                description="Tell us what matters most to you in a relationship and what you're looking for."
+              />
+              <Step
+                number="2"
+                title="Discover Compatible Matches"
+                description="We'll show you profiles with detailed compatibility scores and explanations."
+              />
+              <Step
+                number="3"
+                title="Connect Meaningfully"
+                description="Express interest in profiles that resonate, and start conversations that matter."
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className="bg-gradient-to-r from-accent-600 to-accent-700 rounded-2xl p-12 text-center text-white">
+            <h2 className="text-4xl font-bold mb-4">Ready to find your match?</h2>
+            <p className="text-xl mb-8 opacity-90">
+              Join thousands of people finding meaningful connections
+            </p>
+            <Link to="/signup">
+              <Button size="lg" variant="secondary" className="text-lg px-8">
+                Create Your Profile
+              </Button>
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Heart className="h-6 w-6" />
+              <span className="text-xl font-semibold">{APP_NAME}</span>
+            </div>
+            <p className="text-gray-400 text-sm">
+              © 2024 {APP_NAME}. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="text-center">
+      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent-100 mb-4">
+        <Icon className="h-8 w-8 text-accent-600" />
+      </div>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-gray-600">{description}</p>
+    </div>
+  );
+}
+
+function Step({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="text-center">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent-600 text-white font-bold text-xl mb-4">
+        {number}
+      </div>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-gray-600">{description}</p>
+    </div>
+  );
+}
